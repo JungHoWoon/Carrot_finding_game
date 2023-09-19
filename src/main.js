@@ -12,6 +12,12 @@ const popUp = document.querySelector('.pop-up');
 const popUpText = document.querySelector('.pop-up__message');
 const popUpBtn = document.querySelector('.pop-up__button-replay');
 
+const carrotSound = new Audio('../sound/carrot_pull.mp3');
+const bugSound = new Audio('../sound/bug_pull.mp3');
+const bgSound = new Audio('../sound/bg.mp3');
+const alertSound = new Audio('../sound/alert.wav');
+const winSound = new Audio('../sound/game_win.mp3');
+
 let started = false;
 let timer = undefined;
 let score = 0;
@@ -33,6 +39,7 @@ popUpBtn.addEventListener('click', () => {
 
 function startGame() {
   started = true;
+  playSound(bgSound);
   initGame();
   showStopBtn();
   startGameTimer();
@@ -40,6 +47,8 @@ function startGame() {
 
 function stopGame() {
   started = false;
+  stopSound(bgSound);
+  playSound(alertSound);
   stopGameTimer();
   hideGameBtn();
   showPopUpWithText('REPLAY❓🥺');
@@ -47,6 +56,12 @@ function stopGame() {
 
 function finishGame(win) {
   started = false;
+  if (win) {
+    playSound(winSound);
+  } else {
+    playSound(bugSound);
+  }
+  stopSound(bgSound);
   stopGameTimer();
   hideGameBtn();
   showPopUpWithText(win ? '성공~!🤗' : '실패~!😱');
@@ -108,6 +123,7 @@ function onFieldClick(e) {
   if (target.matches('.carrot')) {
     target.remove();
     score++;
+    playSound(carrotSound);
     updateScore();
     if (CARROT_COUNT === score) {
       finishGame(true);
@@ -116,6 +132,15 @@ function onFieldClick(e) {
     stopGameTimer();
     finishGame(false);
   }
+}
+
+function playSound(sound) {
+  sound.play();
+  sound.currentTime = 0;
+}
+
+function stopSound(sound) {
+  sound.pause();
 }
 
 function updateScore() {
