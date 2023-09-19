@@ -24,23 +24,36 @@ gameBtn.addEventListener('click', () => {
   } else {
     startGame();
   }
-  started = !started;
+});
+
+popUpBtn.addEventListener('click', () => {
+  startGame();
+  hidePopup();
 });
 
 function startGame() {
+  started = true;
   initGame();
   showStopBtn();
   startGameTimer();
 }
 
 function stopGame() {
+  started = false;
   stopGameTimer();
   hideGameBtn();
   showPopUpWithText('REPLAY❓🥺');
 }
 
+function finishGame(win) {
+  started = false;
+  stopGameTimer();
+  hideGameBtn();
+  showPopUpWithText(win ? '성공~!🤗' : '실패~!😱');
+}
+
 function showStopBtn() {
-  const icon = gameBtn.querySelector('.fa-play');
+  const icon = gameBtn.querySelector('.fa-solid');
   icon.classList.add('fa-stop');
   icon.classList.remove('fa-play');
 }
@@ -77,6 +90,10 @@ function showPopUpWithText(text) {
   popUp.classList.remove('pop-up--hide');
 }
 
+function hidePopup() {
+  popUp.classList.add('pop-up--hide');
+}
+
 function initGame() {
   field.innerHTML = '';
   addItem('carrot', CARROT_COUNT, '../images/carrot.png');
@@ -99,13 +116,6 @@ function onFieldClick(e) {
     stopGameTimer();
     finishGame(false);
   }
-}
-
-function finishGame(win) {
-  started = false;
-  stopGameTimer();
-  hideGameBtn();
-  showPopUpWithText(win ? '성공~!🤗' : '실패~!😱');
 }
 
 function updateScore() {
