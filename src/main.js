@@ -1,5 +1,6 @@
 const CARROT_COUNT = 15;
 const BUG_COUNT = 20;
+const GAME_PLAY_TIME_SEC = 30;
 
 const field = document.querySelector('.game__field');
 const fieldSize = field.getBoundingClientRect();
@@ -23,6 +24,7 @@ gameBtn.addEventListener('click', () => {
 function startGame() {
   initGame();
   showStopBtn();
+  startGameTimer();
 }
 
 function stopGame() {}
@@ -31,6 +33,24 @@ function showStopBtn() {
   const icon = gameBtn.querySelector('.fa-play');
   icon.classList.add('fa-arrows-rotate');
   icon.classList.remove('fa-play');
+}
+
+function startGameTimer() {
+  let remainingTime = GAME_PLAY_TIME_SEC;
+  updateTimerText(remainingTime);
+  timer = setInterval(() => {
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      return;
+    }
+    updateTimerText(--remainingTime);
+  }, 1000);
+}
+
+function updateTimerText(time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time;
+  gameTimer.innerText = `${minutes}:${seconds}`;
 }
 
 function initGame() {
