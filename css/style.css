@@ -77,6 +77,8 @@
 }
 
 .game__field {
+  position: relative;
+
   width: 100%;
   height: 370px;
 }
