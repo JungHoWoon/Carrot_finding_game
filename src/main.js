@@ -111,7 +111,9 @@ function hidePopup() {
 }
 
 function initGame() {
+  score = 0;
   field.innerHTML = '';
+  updateScore();
   addItem('carrot', CARROT_COUNT, '../images/carrot.png');
   addItem('bug', BUG_COUNT, '../images/bug.png');
 }
