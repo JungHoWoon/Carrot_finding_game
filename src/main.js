@@ -1,6 +1,6 @@
 const CARROT_COUNT = 15;
 const BUG_COUNT = 20;
-const GAME_PLAY_TIME_SEC = 30;
+const GAME_PLAY_TIME_SEC = 10;
 
 const field = document.querySelector('.game__field');
 const fieldSize = field.getBoundingClientRect();
@@ -15,6 +15,8 @@ const popUpBtn = document.querySelector('.pop-up__button-replay');
 let started = false;
 let timer = undefined;
 let score = 0;
+
+field.addEventListener('click', (e) => onFieldClick(e));
 
 gameBtn.addEventListener('click', () => {
   if (started) {
@@ -53,6 +55,7 @@ function startGameTimer() {
   timer = setInterval(() => {
     if (remainingTime <= 0) {
       clearInterval(timer);
+      finishGame(false);
       return;
     }
     updateTimerText(--remainingTime);
@@ -78,6 +81,35 @@ function initGame() {
   field.innerHTML = '';
   addItem('carrot', CARROT_COUNT, '../images/carrot.png');
   addItem('bug', BUG_COUNT, '../images/bug.png');
+}
+
+function onFieldClick(e) {
+  if (!started) {
+    return;
+  }
+  const target = e.target;
+  if (target.matches('.carrot')) {
+    target.remove();
+    score++;
+    updateScore();
+    if (CARROT_COUNT === score) {
+      finishGame(true);
+    }
+  } else if (target.matches('.bug')) {
+    stopGameTimer();
+    finishGame(false);
+  }
+}
+
+function finishGame(win) {
+  started = false;
+  stopGameTimer();
+  hideGameBtn();
+  showPopUpWithText(win ? '성공~!🤗' : '실패~!😱');
+}
+
+function updateScore() {
+  gameScore.innerText = CARROT_COUNT - score;
 }
 
 function addItem(className, count, imgPath) {
