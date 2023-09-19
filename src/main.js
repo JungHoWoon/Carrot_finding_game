@@ -1,9 +1,42 @@
+const CARROT_COUNT = 15;
+const BUG_COUNT = 20;
+
 const field = document.querySelector('.game__field');
 const fieldSize = field.getBoundingClientRect();
+const gameBtn = document.querySelector('.game__button-play');
+const gameTimer = document.querySelector('.game__counter');
+const gameScore = document.querySelector('.game__score');
+
+let started = false;
+let timer = undefined;
+let score = 0;
+
+gameBtn.addEventListener('click', () => {
+  if (started) {
+    stopGame();
+  } else {
+    startGame();
+  }
+  started = !started;
+});
+
+function startGame() {
+  initGame();
+  showStopBtn();
+}
+
+function stopGame() {}
+
+function showStopBtn() {
+  const icon = gameBtn.querySelector('.fa-play');
+  icon.classList.add('fa-arrows-rotate');
+  icon.classList.remove('fa-play');
+}
 
 function initGame() {
-  addItem('carrot', 10, '../images/carrot.png');
-  addItem('bug', 10, '../images/bug.png');
+  field.innerHTML = '';
+  addItem('carrot', CARROT_COUNT, '../images/carrot.png');
+  addItem('bug', BUG_COUNT, '../images/bug.png');
 }
 
 function addItem(className, count, imgPath) {
@@ -30,5 +63,3 @@ function addItem(className, count, imgPath) {
 function randomNumber(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
-
-initGame();
