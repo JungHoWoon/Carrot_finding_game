@@ -1,176 +1,31 @@
-const CARROT_COUNT = 15;
-const BUG_COUNT = 20;
-const GAME_PLAY_TIME_SEC = 10;
+import PopUp from './popup.js';
+import GameBuilder from './game.js';
 
-const field = document.querySelector('.game__field');
-const fieldSize = field.getBoundingClientRect();
-const gameBtn = document.querySelector('.game__button-play');
-const gameTimer = document.querySelector('.game__counter');
-const gameScore = document.querySelector('.game__score');
+const gameFinishBanner = new PopUp();
+const game = new GameBuilder()
+  .gameDuration(10)
+  .carrotCount(20)
+  .bugCount(20)
+  .build();
 
-const popUp = document.querySelector('.pop-up');
-const popUpText = document.querySelector('.pop-up__message');
-const popUpBtn = document.querySelector('.pop-up__button-replay');
-
-const carrotSound = new Audio('../sound/carrot_pull.mp3');
-const bugSound = new Audio('../sound/bug_pull.mp3');
-const bgSound = new Audio('../sound/bg.mp3');
-const alertSound = new Audio('../sound/alert.wav');
-const winSound = new Audio('../sound/game_win.mp3');
-
-let started = false;
-let timer = undefined;
-let score = 0;
-
-field.addEventListener('click', (e) => onFieldClick(e));
-
-gameBtn.addEventListener('click', () => {
-  if (started) {
-    stopGame();
-  } else {
-    startGame();
+game.setGameStopListener((reason) => {
+  let message;
+  switch (reason) {
+    case 'cancel':
+      message = '다시 하시겠습니까❓';
+      break;
+    case 'win':
+      message = '성공❗😁';
+      break;
+    case 'lose':
+      message = '실패❗😱';
+      break;
+    default:
+      throw new Error('잘못된 결과가 전달되었습니다!');
   }
+  gameFinishBanner.showWithText(message);
 });
 
-popUpBtn.addEventListener('click', () => {
-  startGame();
-  hidePopup();
+gameFinishBanner.setClickListener(() => {
+  game.start();
 });
-
-function startGame() {
-  started = true;
-  playSound(bgSound);
-  initGame();
-  showStopBtn();
-  startGameTimer();
-}
-
-function stopGame() {
-  started = false;
-  stopSound(bgSound);
-  playSound(alertSound);
-  stopGameTimer();
-  hideGameBtn();
-  showPopUpWithText('REPLAY❓🥺');
-}
-
-function finishGame(win) {
-  started = false;
-  if (win) {
-    playSound(winSound);
-  } else {
-    playSound(bugSound);
-  }
-  stopSound(bgSound);
-  stopGameTimer();
-  hideGameBtn();
-  showPopUpWithText(win ? '성공~!🤗' : '실패~!😱');
-}
-
-function showStopBtn() {
-  const icon = gameBtn.querySelector('.fa-solid');
-  icon.classList.add('fa-stop');
-  icon.classList.remove('fa-play');
-  gameBtn.style.visibility = 'visible';
-}
-
-function hideGameBtn() {
-  gameBtn.style.visibility = 'hidden';
-}
-
-function startGameTimer() {
-  let remainingTime = GAME_PLAY_TIME_SEC;
-  updateTimerText(remainingTime);
-  timer = setInterval(() => {
-    if (remainingTime <= 0) {
-      clearInterval(timer);
-      finishGame(false);
-      return;
-    }
-    updateTimerText(--remainingTime);
-  }, 1000);
-}
-
-function stopGameTimer() {
-  clearInterval(timer);
-}
-
-function updateTimerText(time) {
-  const minutes = Math.floor(time / 60);
-  const seconds = time;
-  gameTimer.innerText = `${minutes}:${seconds}`;
-}
-
-function showPopUpWithText(text) {
-  popUpText.innerText = text;
-  popUp.classList.remove('pop-up--hide');
-}
-
-function hidePopup() {
-  popUp.classList.add('pop-up--hide');
-}
-
-function initGame() {
-  score = 0;
-  field.innerHTML = '';
-  updateScore();
-  addItem('carrot', CARROT_COUNT, '../images/carrot.png');
-  addItem('bug', BUG_COUNT, '../images/bug.png');
-}
-
-function onFieldClick(e) {
-  if (!started) {
-    return;
-  }
-  const target = e.target;
-  if (target.matches('.carrot')) {
-    target.remove();
-    score++;
-    playSound(carrotSound);
-    updateScore();
-    if (CARROT_COUNT === score) {
-      finishGame(true);
-    }
-  } else if (target.matches('.bug')) {
-    stopGameTimer();
-    finishGame(false);
-  }
-}
-
-function playSound(sound) {
-  sound.play();
-  sound.currentTime = 0;
-}
-
-function stopSound(sound) {
-  sound.pause();
-}
-
-function updateScore() {
-  gameScore.innerText = CARROT_COUNT - score;
-}
-
-function addItem(className, count, imgPath) {
-  const imgSize = 80;
-  const x1 = 0;
-  const x2 = fieldSize.width - imgSize;
-  const y1 = 0;
-  const y2 = fieldSize.height - imgSize;
-
-  for (let i = 0; i < count; i++) {
-    const item = document.createElement('img');
-    const x = randomNumber(x1, x2);
-    const y = randomNumber(y1, y2);
-
-    item.setAttribute('class', className);
-    item.setAttribute('src', imgPath);
-    item.style.position = 'absolute';
-    item.style.left = `${x}px`;
-    item.style.top = `${y}px`;
-    field.appendChild(item);
-  }
-}
-
-function randomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
